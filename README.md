@@ -1,4 +1,4 @@
-# Tide Level Recorder – HTTPS w Self-certificate & Raspberry Pi Setup 
+# Remote image recorder – Raspberry Pi Setup & Https server 
 
 This guide walks you through running the Flask-based HTTPS server (with self-signed certificate) locally or on a Raspberry Pi. The HTTPS server is used to store timestamped images captured through a Raspberry Pi eqquiped with Raspberry Pi camera, an RTC, and a uBlox GPS module.
 
