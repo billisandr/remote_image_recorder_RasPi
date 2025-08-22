@@ -1,0 +1,16 @@
+[Unit]
+Description=Sync RTC from GPS via GPSD
+After=gpsd.service
+Requires=gpsd.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/gps_to_rtc_sync.sh
+StandardOutput=journal
+StandardError=journal
+RemainAfterExit=yes
+# MAX_WAIT (600) + a little cushion
+TimeoutStartSec=700
+
+[Install]
+WantedBy=multi-user.target

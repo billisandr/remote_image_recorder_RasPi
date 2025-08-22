@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Photo Gallery</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f9f9f9;
+      }
+
+      .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .top-bar a {
+        margin-left: 15px;
+        text-decoration: none;
+        color: #007BFF;
+        font-weight: bold;
+      }
+
+      .top-bar a:hover {
+        text-decoration: underline;
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2px;
+      }
+
+      .gallery-item {
+        text-align: center;
+        background-color: white;
+        padding: 2px;
+        border-radius: 2px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .gallery-item img {
+        width: 200px;
+        height: 150px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: transform 0.3s;
+      }
+      
+      .gallery-item img:hover {
+        transform: scale(1.05);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.9);
+      }
+
+      .modal-content {
+        display: block;
+        margin: 10vh auto;
+        max-width: 90%;
+        max-height: 80%;
+      }
+
+      .close {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      pre {
+        background-color: #f4f4f4;
+        border: 1px solid #ccc;
+        padding: 10px;
+        overflow-x: auto;
+        max-height: 300px;
+      }
+
+      .download-btn {
+        padding: 6px 12px;
+        background: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .download-btn:hover {
+        background: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <h2>Photo Gallery</h2>
+      <div>
+        <a href="{{ url_for('logout') }}">Logout</a>
+        <a class="download-btn" id="downloadJson" download="photos.json">Download JSON</a>
+      </div>
+    </div>
+
+    <div class="gallery">
+      {% for photo in photos %}
+        <div class="gallery-item">
+          <img src="{{ url_for('serve_file', filename=photo.filename) }}" alt="Photo" onclick="openModal(this.src)">
+          <div><small>{{ photo.timestamp }}</small></div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <hr>
+
+    <h3>Raw JSON Data</h3>
+    <pre id="jsonData">{{ photos_json | safe }}</pre>
+
+    <!-- Lightbox Modal -->
+    <div id="lightboxModal" class="modal" onclick="closeModal()">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+      const modal = document.getElementById("lightboxModal");
+      const modalImg = document.getElementById("modalImage");
+
+      function openModal(src) {
+        modal.style.display = "block";
+        modalImg.src = src;
+      }
+
+      function closeModal() {
+        modal.style.display = "none";
+      }
+
+      document.getElementById("downloadJson").addEventListener("click", function () {
+        const data = document.getElementById("jsonData").innerText;
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        this.href = url;
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run GPS to RTC sync every 6 hours
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=6h
+AccuracySec=1min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
