@@ -1,10 +1,11 @@
 # Remote image recorder – Raspberry Pi Setup & Https server 
 
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/downloads/)
+
 This guide walks you through setting up a dockerized Flask-based HTTPS server (with self-signed certificate) locally or on a Raspberry Pi. The HTTPS server is used to store timestamped images captured through a Raspberry Pi eqquiped with Raspberry Pi camera, an RTC, and a uBlox GPS module.
 
 > Disclaimer: This work is part of a non-funded prototype research idea condacted  at the [SenseLAB](http://senselab.tuc.gr/) of the [TUC](https://www.tuc.gr/el/archi).
-
-[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 ## PART I: HTTPS Server
 
