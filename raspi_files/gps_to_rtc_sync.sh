@@ -2,8 +2,8 @@
 set -euo pipefail
 
 LOG="/var/log/gps_rtc_sync.log"
-MAX_WAIT=600
-INTERVAL=20
+MAX_WAIT=1200
+INTERVAL=10
 GPS_TIMEOUT_REACHED=1
 
 log() {
