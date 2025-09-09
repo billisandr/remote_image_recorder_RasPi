@@ -6,9 +6,6 @@ cert.pem
 # Uploads directory
 uploads/
 
-# Claude-specific files
-READMEcld.md
-
 # Environment variables
 .env
 
