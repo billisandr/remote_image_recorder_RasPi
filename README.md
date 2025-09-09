@@ -1,4 +1,4 @@
-# Remote image recorder – Raspberry Pi Setup & Https server 
+# Remote image recorder – Raspberry Pi Setup & Https server
 
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/downloads/)
@@ -79,13 +79,13 @@ docker compose build
 docker compose up --build -d
 ```
 
-Make sure the docker machine has started successfully, and run on PowerShell or Command Window: 
+Make sure the docker machine has started successfully, and run on PowerShell or Command Window:
 
 ```bash
 ./deploy.ps1
 ```
 
-If the last command runs successfully a message will appear:   
+If the last command runs successfully a message will appear:
 Docker container 'tide-recorder-server-https' started at [https://\<SERVER\_IP>:5000](https://<SERVER_IP>:5000)
 
 > Note 1: You will receive a browser warning due to the self-signed certificate. You can safely proceed through the warning for local development.  
@@ -118,6 +118,7 @@ To clean up unused Docker resources:
 ```bash
 docker system prune -af
 ```
+
 ---
 
 ## PART II: Raspberry Pi Setup
@@ -126,31 +127,37 @@ docker system prune -af
 
 The scripts and bash files included in the 'raspi_files' directory should be copied to the Raspberry Pi as follows:
 
-a) /usr/local/bin/gps_to_rtc_sync.sh   
+a) /usr/local/bin/gps_to_rtc_sync.sh
 b) /usr/local/bin/photo_logger.py  
 c) /etc/systemd/system/gps-to-rtc.service  
 d) /etc/systemd/system/gps-to-rtc.timer  
 
 ## II.2. Setup RTC and GPS time sync as a system service
 
-Make bash file executable: 
+Make bash file executable:
+
 ```bash
 sudo chmod +x /usr/local/bin/gps_to_rtc_sync.sh
 ```
 
-Enable timer and check if service and timer work: 
+Enable timer and check if service and timer work:
+
 ```bash
 sudo systemctl enable gps-to-rtc.timer
 sudo systemctl start gps-to-rtc.timer
 ```
+
 Checks and log files
+
 ```bash
 sudo systemctl list-timers –all #see all timers
 sudo systemctl status gps-to-rtc.timer #see specific timer
 sudo journalctl -u gps-to-rtc.service #see service log files
 cat /var/log/gps_to_rtc_sync.log #see alternative service log files
 ```
+
 Reload and restart system service (troubleshooting only)
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now gps-to-rtc.timer
@@ -158,10 +165,13 @@ sudo systemctl restart gps-to-rtc.service
 ```
 
 ## II.3. Start capturing images (manually)
+
 Run on the Raspberry Pi (after making sure that the HTTPS server is up):
+
 ```bash
 sudo python3 /usr/local/bin/photo_logger.py
 ```
+
 > Note: This step could be converted to a system service as well, instead of manual start/stop.
 
 ## II.4 Find captured images
@@ -172,6 +182,7 @@ b) /tide-recorder-server-https/uploads directory on the server machine, and
 c) the server url (read-only).
 
 ## Final notes
+>
 > Note 1: Remember to share the "cert.pem" file with the clients that need to have access to the server to upload or view the server (e.g. Rasp Pi uploading photos). Keep key.pem on the server only.  
 > Note 2: Remember to modify the .env file and set the environment params to correctly set the desired login credentials.
 

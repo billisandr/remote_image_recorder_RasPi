@@ -5,10 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is a remote image recorder system for tide monitoring consisting of:
+
 1. **HTTPS Flask Server** - Dockerized web server for receiving and displaying timestamped images
 2. **Raspberry Pi Client** - Captures images with GPS-synced timestamps and uploads to server
 
 The system is designed for Raspberry Pi equipped with:
+
 - Raspberry Pi camera or USB camera
 - Real-time clock (RTC) module
 - uBlox GPS module for precise time synchronization
@@ -21,6 +23,7 @@ The system is designed for Raspberry Pi equipped with:
 ## Architecture
 
 ### Server Components (app.py:1-127)
+
 - **Flask app with HTTPS** - Uses self-signed certificates (cert.pem/key.pem)
 - **Authentication system** - Flask-Login with admin credentials from environment
 - **SQLite database** - Stores photo metadata (filename, timestamp)
@@ -28,6 +31,7 @@ The system is designed for Raspberry Pi equipped with:
 - **Web gallery** - Protected interface for viewing uploaded photos
 
 ### Raspberry Pi Components (raspi_files/)
+
 - **photo_logger.py** - Main capture script using rpicam-still or fswebcam
 - **GPS-RTC sync system** - Systemd services for accurate timestamping
 - **GPIO flash control** - Optional LED flash for low-light conditions
@@ -41,6 +45,7 @@ The system is designed for Raspberry Pi equipped with:
 ## Common Development Commands
 
 ### Docker Development
+
 ```bash
 # Build and start server
 docker compose build
@@ -59,6 +64,7 @@ docker compose up --build -d
 ```
 
 ### SSL Certificate Generation
+
 ```bash
 # Generate self-signed certificates (required for HTTPS)
 # Set Common Name (CN) to 'localhost' or Pi's IP address when prompted
@@ -67,6 +73,7 @@ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -node
 ```
 
 ### .dockerignore Configuration
+
 ```
 .env
 key.pem
@@ -79,6 +86,7 @@ __pycache__/
 ### Docker Compose Configuration
 
 Example `docker-compose.yml` for HTTPS support:
+
 ```yaml
 version: "3.8"
 
@@ -102,18 +110,22 @@ services:
 ```
 
 ### Docker Success Verification
+
 After running `./deploy.ps1`, look for:
+
 ```
 Docker container 'tide-recorder-server-https' started at https://<SERVER_IP>:5000
 ```
 
 ### Python Dependencies
+
 ```bash
 # Install requirements
 pip install -r requirements.txt
 ```
 
 ### Docker System Maintenance
+
 ```bash
 # View running containers
 docker ps
@@ -131,6 +143,7 @@ docker rmi tide-recorder-server-https
 ## Environment Configuration
 
 Required `.env` file variables:
+
 - `SECRET_KEY` - Flask session encryption key
 - `ADMIN_USER` - Web interface username
 - `ADMIN_PASS` - Web interface password
@@ -174,6 +187,7 @@ tide-recorder-server-https/
 ## Database Schema
 
 SQLite database `photo_log.db`:
+
 ```sql
 CREATE TABLE photos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -185,19 +199,23 @@ CREATE TABLE photos (
 ## Raspberry Pi Setup
 
 ### Required File Locations
+
 Copy `raspi_files/` contents to these Pi locations:
+
 - `/usr/local/bin/gps_to_rtc_sync.sh`
 - `/usr/local/bin/photo_logger.py`  
 - `/etc/systemd/system/gps-to-rtc.service`
 - `/etc/systemd/system/gps-to-rtc.timer`
 
 ### File Permissions Setup
+
 ```bash
 # Make script executable
 sudo chmod +x /usr/local/bin/gps_to_rtc_sync.sh
 ```
 
 ### GPS-RTC Time Sync Service
+
 ```bash
 # Enable and start timer
 sudo systemctl enable gps-to-rtc.timer
@@ -213,6 +231,7 @@ cat /var/log/gps_to_rtc_sync.log
 ```
 
 ### Troubleshooting GPS-RTC Service
+
 ```bash
 # Reload and restart (troubleshooting only)
 sudo systemctl daemon-reload
@@ -221,6 +240,7 @@ sudo systemctl restart gps-to-rtc.service
 ```
 
 ### Manual Photo Capture
+
 ```bash
 # Start image capture (after server is running)
 sudo python3 /usr/local/bin/photo_logger.py
@@ -231,6 +251,7 @@ sudo python3 /usr/local/bin/photo_logger.py
 ## Image Storage Locations
 
 Captured images are stored in three locations:
+
 1. `/home/<username>/captured/` - Local Pi storage
 2. `/tide-recorder-server-https/uploads/` - Server directory (Docker volume)
 3. Server web interface - Gallery view at `/gallery` (read-only access)
