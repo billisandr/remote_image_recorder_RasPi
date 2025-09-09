@@ -153,7 +153,7 @@ Checks and log files
 sudo systemctl list-timers –all #see all timers
 sudo systemctl status gps-to-rtc.timer #see specific timer
 sudo journalctl -u gps-to-rtc.service #see service log files
-cat /var/log/gps_to_rtc_sync.log #see alternative service log files
+cat /var/log/gps_rtc_sync.log #see alternative service log files
 ```
 
 Reload and restart system service (troubleshooting only)

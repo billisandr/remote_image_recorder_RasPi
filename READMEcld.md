@@ -227,7 +227,7 @@ sudo systemctl list-timers --all
 # Monitor specific timer and service
 sudo systemctl status gps-to-rtc.timer
 sudo journalctl -u gps-to-rtc.service
-cat /var/log/gps_to_rtc_sync.log
+cat /var/log/gps_rtc_sync.log
 ```
 
 ### Troubleshooting GPS-RTC Service
