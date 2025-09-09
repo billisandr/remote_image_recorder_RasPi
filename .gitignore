@@ -1,0 +1,86 @@
+# SSL Certificates
+*.pem
+key.pem
+cert.pem
+
+# Uploads directory
+uploads/
+
+# Claude-specific files
+READMEcld.md
+
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+/var/log/
+logs/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+photo_log.db
+
+# Docker
+.dockerignore
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+
+# Node modules (if any)
+node_modules/
+
+# Backup files
+*.bak
+*.backup
