@@ -246,6 +246,9 @@ sudo systemctl restart gps-to-rtc.service
 ### Manual Photo Capture
 
 ```bash
+# Set server URL environment variable (update IP as needed)
+export SERVER_URL=https://<docker_server_ip>:5000/upload
+
 # Start image capture (after server is running)
 sudo python3 /usr/local/bin/photo_logger.py
 ```
