@@ -68,7 +68,8 @@ logs/
 photo_log.db
 
 # Docker
-.dockerignore
+docker/.dockerignore
+docker/secrets/
 
 # Temporary files
 *.tmp

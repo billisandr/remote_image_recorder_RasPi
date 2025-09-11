@@ -1,0 +1,43 @@
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: tide-recorder-server-https
+    image: tide-recorder-server-https
+    ports:
+      - "5000:5000"
+    volumes:
+      - uploads_data:/app/uploads
+      - ../cert.pem:/app/certs/cert.pem:ro
+      - ../key.pem:/app/certs/key.pem:ro
+    environment:
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+      - ADMIN_USER_FILE=/run/secrets/admin_user
+      - ADMIN_PASS_FILE=/run/secrets/admin_pass
+      - SSL_CERT_PATH=/app/certs/cert.pem
+      - SSL_KEY_PATH=/app/certs/key.pem
+    secrets:
+      - secret_key
+      - admin_user
+      - admin_pass
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  uploads_data:
+
+secrets:
+  secret_key:
+    file: ./secrets/secret_key.txt
+  admin_user:
+    file: ./secrets/admin_user.txt
+  admin_pass:
+    file: ./secrets/admin_pass.txt

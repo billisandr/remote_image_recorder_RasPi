@@ -51,64 +51,27 @@ The system is designed for Raspberry Pi equipped with:
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
 ```
 
-### .dockerignore Configuration
-
-```
-.env
-cert.pem
-key.pem
-__pycache__/
-*.pyc
-*.log
-.git/
-uploads/
-raspi_files/
-```
-
-### Docker Compose Configuration
-
-Example `docker-compose.yml` for HTTPS support:
-
-```yaml
-version: "3.8"
-
-services:
-  web:
-    build: .
-    container_name: tide-recorder-server-https
-    image: tide-recorder-server-https
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./uploads:/app/uploads
-      - ./.env:/app/.env
-      - ./cert.pem:/app/cert.pem
-      - ./key.pem:/app/key.pem
-    environment:
-      - SECRET_KEY=${SECRET_KEY}
-      - ADMIN_USER=${ADMIN_USER}
-      - ADMIN_PASS=${ADMIN_PASS}
-    restart: always
-```
-
 ### Docker Development
 
 ```bash
-# Build and start server
-docker compose build
-docker compose up --build -d
-
-# Quick deploy (Windows)
+# Quick deploy (Windows) - handles SSL certificates and secrets automatically
 ./deploy.ps1
 
+# Manual deployment from docker directory
+cd docker
+docker-compose up --build -d
+
 # Stop and cleanup
-docker compose down
+cd docker && docker-compose down
 docker system prune -af
 
 # Rebuild after changes
-docker compose down
-docker compose up --build -d
+cd docker
+docker-compose down
+docker-compose up --build -d
 ```
+
+> **Note**: All Docker-related files are now organized in the `docker/` directory. See `docker/README.md` for detailed Docker setup instructions.
 
 ### Docker Success Verification
 
@@ -167,6 +130,12 @@ Required `.env` file variables:
 
 ```
 tide-recorder-server-https/
+├── docker/                # Docker configuration directory
+│   ├── secrets/           # Docker secrets (auto-generated)
+│   ├── .dockerignore      # Docker ignore file
+│   ├── Dockerfile         # Container build instructions
+│   ├── docker-compose.yml # Container orchestration with security
+│   └── README.md          # Docker setup instructions
 ├── raspi_files/           # Raspberry Pi scripts
 │   ├── photo_logger.py    # Main capture script
 │   ├── gps_to_rtc_sync.sh # GPS time synchronization
@@ -176,13 +145,10 @@ tide-recorder-server-https/
 │   ├── gallery.html       # Photo gallery interface  
 │   └── login.html         # Authentication page
 ├── uploads/               # Uploaded images directory
-├── .dockerignore          # Docker ignore file
-├── .env                   # Environment variables
+├── .env                   # Environment variables (legacy support)
 ├── key.pem                # SSL private key (generated)
 ├── cert.pem               # SSL certificate (generated)
 ├── app.py                 # Main Flask application
-├── Dockerfile             # Container build instructions
-├── docker-compose.yml     # Container orchestration
 ├── requirements.txt       # Python dependencies
 ├── deploy.ps1             # Windows deployment script
 └── README.md              # Project documentation

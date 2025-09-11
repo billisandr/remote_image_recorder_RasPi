@@ -10,12 +10,25 @@ from datetime import datetime
 from dotenv import load_dotenv
 load_dotenv()
 
+def read_secret(env_var, fallback):
+    """Read secret from file if *_FILE env var is set, otherwise use regular env var"""
+    file_path = os.environ.get(env_var + "_FILE")
+    if file_path and os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read().strip()
+            # Remove UTF-8 BOM if present
+            if content.startswith('\ufeff'):
+                content = content[1:]
+            return content
+    return os.environ.get(env_var, fallback)
+
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "defaultsecret")
+app.secret_key = read_secret("SECRET_KEY", "defaultsecret")
 
 UPLOAD_FOLDER = "uploads"
-DB_PATH = "photo_log.db"
+DB_PATH = "data/photo_log.db"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs("data", exist_ok=True)
 
 # ------------------ Auth Setup ------------------ #
 login_manager = LoginManager()
@@ -24,8 +37,8 @@ login_manager.login_view = "login"
 
 # Set admin user
 users = {
-    os.environ.get("ADMIN_USER", "admin"):
-    generate_password_hash(os.environ.get("ADMIN_PASS", "adminpass"))
+    read_secret("ADMIN_USER", "admin"):
+    generate_password_hash(read_secret("ADMIN_PASS", "adminpass"))
 }
 
 class User(UserMixin):
@@ -44,6 +57,10 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Login")
 
 # ------------------ Routes ------------------ #
+@app.route("/health")
+def health():
+    return jsonify({"status": "healthy", "timestamp": datetime.now().isoformat()})
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
@@ -122,6 +139,26 @@ def init_db():
     conn.close()
 
 if __name__ == "__main__":
+    import time
     init_db()
-    app.run(host="0.0.0.0", port=5000, ssl_context=("cert.pem", "key.pem"))
+    cert_path = os.environ.get("SSL_CERT_PATH", "cert.pem")
+    key_path = os.environ.get("SSL_KEY_PATH", "key.pem")
+    
+    # Wait for SSL certificates to be mounted (max 10 seconds)
+    for i in range(10):
+        if os.path.exists(cert_path) and os.path.exists(key_path):
+            print(f"Using SSL certificates: {cert_path}, {key_path}")
+            app.run(host="0.0.0.0", port=5000, ssl_context=(cert_path, key_path))
+            break
+        print(f"Waiting for SSL certificates... ({i+1}/10)")
+        time.sleep(1)
+    else:
+        print(f"SSL certificates not found at {cert_path} and {key_path} after waiting")
+        print("Available files in /app/certs/:")
+        if os.path.exists("/app/certs"):
+            print(os.listdir("/app/certs"))
+        else:
+            print("/app/certs directory does not exist")
+        print("Running without SSL (HTTP only)")
+        app.run(host="0.0.0.0", port=5000)
 

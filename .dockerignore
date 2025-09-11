@@ -1,9 +1,0 @@
-.env
-cert.pem
-key.pem
-__pycache__/
-*.pyc
-*.log
-.git/
-uploads/
-raspi_files/
