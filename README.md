@@ -1,4 +1,4 @@
-# Remote image recorder – Raspberry Pi Setup & Https server
+# Remote image recorder – Raspberry Pi Setup & HTTPS server
 
 ## Project Overview
 
