@@ -54,7 +54,7 @@ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -node
 ### Docker Development
 
 ```bash
-# Quick deploy (Windows) - handles SSL certificates and secrets automatically
+# Quick deploy (Windows) - handles SSL certificates and Docker secrets automatically
 ./deploy.ps1
 
 # Manual deployment from docker directory
@@ -71,7 +71,7 @@ docker-compose down
 docker-compose up --build -d
 ```
 
-> **Note**: All Docker-related files are now organized in the `docker/` directory. See `docker/README.md` for detailed Docker setup instructions.
+> **Note**: All Docker-related files are organized in the `docker/` directory. The system now uses Docker secrets for secure credential management instead of environment variables. See `docker/README.md` for detailed setup instructions.
 
 ### Docker Success Verification
 
@@ -109,14 +109,20 @@ docker rmi tide-recorder-server-https
 
 ## Environment Configuration
 
-Required `.env` file variables:
+### Raspberry Pi Client Configuration (`.env` file):
 
-- `SECRET_KEY` - Flask session encryption key
-- `ADMIN_USER` - Web interface username
-- `ADMIN_PASS` - Web interface password
-- `FLASH_GPIO` - GPIO pin for camera flash (Pi only)
-- `PHOTO_INTERVAL` - Seconds between captures (Pi only)
-- `SERVER_URL` - Upload endpoint URL (Pi only)
+- `FLASH_GPIO` - GPIO pin for camera flash
+- `PHOTO_INTERVAL` - Seconds between captures  
+- `SERVER_URL` - Upload endpoint URL (e.g., https://SERVER_IP:5000/upload)
+
+### Server Credentials (Docker Secrets):
+
+Server authentication is managed through Docker secrets in `docker/secrets/`:
+- `secret_key.txt` - Flask session encryption key
+- `admin_user.txt` - Web interface username  
+- `admin_pass.txt` - Web interface password
+
+> **Security Note**: Server credentials are no longer stored in `.env` files. The deploy script automatically generates and stores them securely using Docker secrets.
 
 ## Key Endpoints
 
@@ -125,6 +131,7 @@ Required `.env` file variables:
 - `/gallery` - Protected web interface for viewing photos
 - `/photos` - JSON API for photo metadata
 - `/uploads/<filename>` - Serve uploaded images
+- `/health` - Health check endpoint for monitoring (returns JSON status)
 
 ## File Structure
 
@@ -231,13 +238,24 @@ Captured images are stored in three locations:
 
 ## Security Notes
 
-- Server uses self-signed HTTPS certificates
+### SSL/TLS Security
+- Server uses self-signed HTTPS certificates for development
 - Client uploads bypass SSL verification (verify=False) for development
 - **Certificate Distribution**: Share `cert.pem` with Pi clients, keep `key.pem` server-only
 - Browser will show security warnings for self-signed certificates - you can safely proceed for local development
-- Authentication via Flask-Login session management
-- Passwords hashed with Werkzeug security functions
-- Remember to modify `.env` file to set desired login credentials
+
+### Credential Management
+- **Docker Secrets**: Server credentials stored securely in Docker secrets, not environment variables
+- **Authentication**: Flask-Login session management with secure password hashing (Werkzeug)
+- **Container Security**: Non-root user execution, read-only certificate volumes, no new privileges
+- **Multi-stage Build**: Smaller attack surface with dependency separation
+- **Health Monitoring**: Built-in health checks for container monitoring
+
+### Production Recommendations
+- Replace self-signed certificates with CA-issued certificates
+- Use external secrets management (e.g., Docker Swarm secrets, Kubernetes secrets)
+- Enable container resource limits and monitoring
+- Implement proper log management and rotation
 
 ## License
 
