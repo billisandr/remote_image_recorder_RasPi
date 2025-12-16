@@ -1,5 +1,13 @@
 # Remote image recorder – Raspberry Pi Setup & HTTPS server
 
+Remote image recorder system through Raspberry Pi and flask server
+
+> Developed at the [SenseLAB](http://senselab.tuc.gr/) of the [TUC](https://www.tuc.gr/el/archi).
+
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/downloads/)
+---
+
 ## Project Overview
 
 This is a remote image recorder system for tide monitoring consisting of:
@@ -12,11 +20,6 @@ The system is designed for Raspberry Pi equipped with:
 - Raspberry Pi camera or USB camera
 - Real-time clock (RTC) module
 - uBlox GPS module for precise time synchronization
-
-> **Disclaimer**: This is a non-funded prototype research project conducted at the [SenseLAB](http://senselab.tuc.gr/) of the [TUC](https://www.tuc.gr/el/archi). Licensed under BSD 3-Clause.
-
-[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/downloads/)
 
 ## Architecture
 
