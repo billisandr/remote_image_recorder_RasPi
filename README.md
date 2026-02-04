@@ -21,6 +21,25 @@ The system is designed for Raspberry Pi equipped with:
 - Real-time clock (RTC) module
 - uBlox GPS module for precise time synchronization
 
+## Quick Start
+
+The easiest way to deploy the server (Windows):
+
+```bash
+# Handles SSL certificates and Docker secrets automatically
+./deploy.ps1
+```
+
+After deployment, verify success by looking for:
+
+```txt
+Docker container 'tide-recorder-server-https' started at https://<SERVER_IP>:5000
+```
+
+Access the web interface at the provided URL:
+- You will receive a browser warning due to the self-signed certificate (safe to proceed for local development)
+- Login page will request credentials (auto-generated and stored in docker/secrets/)
+
 ## Architecture
 
 ### Server Components (app.py)
@@ -43,7 +62,7 @@ The system is designed for Raspberry Pi equipped with:
 - Flask app with `app.py` configured for HTTPS
 - OpenSSL (available via Git Bash, WSL, or native install)
 
-## Common Development Steps
+## Common Operations
 
 ### SSL Certificate Generation
 
@@ -80,7 +99,7 @@ docker-compose up --build -d
 
 After running `./deploy.ps1`, look for:
 
-```
+```txt
 Docker container 'tide-recorder-server-https' started at https://<SERVER_IP>:5000
 ```
 
@@ -138,7 +157,7 @@ Server authentication is managed through Docker secrets in `docker/secrets/`:
 
 ## File Structure
 
-```
+```txt
 tide-recorder-server-https/
 ├── docker/                # Docker configuration directory
 │   ├── secrets/           # Docker secrets (auto-generated)
@@ -210,15 +229,6 @@ sudo journalctl -u gps-to-rtc.service
 cat /var/log/gps_rtc_sync.log
 ```
 
-### Troubleshooting GPS-RTC Service
-
-```bash
-# Reload and restart (troubleshooting only)
-sudo systemctl daemon-reload
-sudo systemctl enable --now gps-to-rtc.timer
-sudo systemctl restart gps-to-rtc.service
-```
-
 ### Manual Photo Capture
 
 ```bash
@@ -238,6 +248,30 @@ Captured images are stored in three locations:
 1. `/home/<username>/captured/` - Local Pi storage
 2. `/tide-recorder-server-https/uploads/` - Server directory (Docker volume)
 3. Server web interface - Gallery view at `/gallery` (read-only access)
+
+## Troubleshooting
+
+### GPS-RTC Service Issues
+
+```bash
+# Reload and restart services
+sudo systemctl daemon-reload
+sudo systemctl enable --now gps-to-rtc.timer
+sudo systemctl restart gps-to-rtc.service
+
+# Verify timer is active
+sudo systemctl list-timers --all | grep gps-to-rtc
+
+# Check service logs for errors
+sudo journalctl -u gps-to-rtc.service -n 50
+cat /var/log/gps_rtc_sync.log
+```
+
+Expected output for active timer:
+```txt
+NEXT                         LEFT          LAST                         PASSED       UNIT                ACTIVATES
+Mon 2024-XX-XX 12:00:00 UTC  Xmin Xs left  Mon 2024-XX-XX 11:55:00 UTC  Xmin Xs ago  gps-to-rtc.timer    gps-to-rtc.service
+```
 
 ## Security Notes
 
@@ -261,5 +295,5 @@ Captured images are stored in three locations:
 - Implement proper log management and rotation
 
 ## License
+This project is licensed under the BSD 3-Clause License. See [LICENSE](LICENSE) file for details. 
 
-[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
