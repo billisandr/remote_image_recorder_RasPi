@@ -26,7 +26,7 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 def get_rtc_time():
     try:
         output = subprocess.check_output(["hwclock", "-r"]).decode().strip()
-        dt = datetime.strptime(output, "%Y-%m-%d %H:%M:%S.%f" if '.' in output else "%Y-%m-%d %H:%M:%S")
+        dt = datetime.fromisoformat(output)
         return dt.isoformat()
     except Exception as e:
         print("[ERROR] Failed to read RTC:", e)
@@ -150,8 +150,8 @@ def upload_photo(filepath, timestamp):
         files = {'image': f}
         data = {'timestamp': timestamp}
         try:
-            r = requests.post(SERVER_URL, files=files, data=data, verify=False) #use for devel and testing
-            #r = requests.post(SERVER_URL, files=files, data=data, ssl_context=("cert.pem", "key.pem")) # use for production
+            r = requests.post(SERVER_URL, files=files, data=data, verify=False) # development: skip cert verification
+            #r = requests.post(SERVER_URL, files=files, data=data, verify="/usr/local/bin/cert.pem") # production: verify against server cert
             print(f"[UPLOAD] Status {r.status_code}: {r.text}")
         except Exception as e:
             print("[ERROR] Upload failed:", e)

@@ -66,12 +66,23 @@ Access the web interface at the provided URL:
 
 ### SSL Certificate Generation
 
+Use the provided script to generate a self-signed certificate with a Subject Alternative Name (SAN). This is required for modern browsers and the Raspberry Pi client to accept the certificate without errors.
+
+Run from inside `tide-recorder-server-https/` using Git Bash or WSL:
+
 ```bash
-# Generate self-signed certificates (required for HTTPS)
-# Set Common Name (CN) to 'localhost' or Pi's IP address when prompted
-# Use Git Bash, WSL, or OpenSSL directly
-openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+bash gen_certs.sh
 ```
+
+The script prompts for the server IP or hostname — no sensitive data is hard-coded or logged. It auto-detects whether to set a `IP:` or `DNS:` SAN and prints a cert summary on completion.
+
+Then re-run `deploy.ps1` to push the new certs into the Docker volume and restart the container:
+
+```txt
+./deploy.ps1
+```
+
+> Note: Browsers will still show a "Not Secure" warning because the certificate is self-signed (no trusted CA). This is expected for a private system. The SAN fix resolves connection errors on the Pi client.
 
 ### Docker Development
 
@@ -164,6 +175,7 @@ tide-recorder-server-https/
 │   ├── .dockerignore      # Docker ignore file
 │   ├── Dockerfile         # Container build instructions
 │   ├── docker-compose.yml # Container orchestration with security
+│   ├── entrypoint.sh      # Fixes volume ownership at startup, drops to appuser
 │   └── README.md          # Docker setup instructions
 ├── raspi_files/           # Raspberry Pi scripts
 │   ├── photo_logger.py    # Main capture script
@@ -229,13 +241,32 @@ sudo journalctl -u gps-to-rtc.service
 cat /var/log/gps_rtc_sync.log
 ```
 
+### Pi Client Configuration
+
+`photo_logger.py` reads its configuration from a `.env` file in the same directory (`/usr/local/bin/.env`). This file must be created manually on the Pi — it is not copied automatically.
+
+Create it with:
+
+```bash
+sudo nano /usr/local/bin/.env
+```
+
+Add the following contents (update `SERVER_URL` to match your server's LAN IP):
+
+```txt
+FLASH_GPIO=5
+PHOTO_INTERVAL=30
+SERVER_URL=https://<docker_server_ip>:5000/upload
+```
+
+Save and exit. Without this file, `photo_logger.py` will fall back to the hardcoded default IP in the script, which will likely be wrong.
+
+To find the correct server IP on Windows, run `ipconfig` and use the Ethernet or Wi-Fi adapter address — not any `172.x.x.x` addresses, which are Docker or WSL virtual adapters.
+
 ### Manual Photo Capture
 
 ```bash
-# Set server URL environment variable (update IP as needed)
-export SERVER_URL=https://<docker_server_ip>:5000/upload
-
-# Start image capture (after server is running)
+# Start image capture (after server is running and .env is configured)
 sudo python3 /usr/local/bin/photo_logger.py
 ```
 

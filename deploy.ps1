@@ -4,7 +4,7 @@ Set-Location $WORKDIR
 
 # Get the local IP address using .NET
 ${IP} = [System.Net.Dns]::GetHostAddresses([System.Net.Dns]::GetHostName()) |
-    Where-Object { $_.AddressFamily -eq 'InterNetwork' -and $_.IPAddressToString -notlike '169.*' } |
+    Where-Object { $_.AddressFamily -eq 'InterNetwork' -and $_.IPAddressToString -notlike '169.*' -and $_.IPAddressToString -notlike '172.*' } |
     Select-Object -First 1
 
 ${IP} = ${IP}.IPAddressToString
