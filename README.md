@@ -304,6 +304,28 @@ NEXT                         LEFT          LAST                         PASSED  
 Mon 2024-XX-XX 12:00:00 UTC  Xmin Xs left  Mon 2024-XX-XX 11:55:00 UTC  Xmin Xs ago  gps-to-rtc.timer    gps-to-rtc.service
 ```
 
+### Docker Secrets Mount Failure (WSL2 Drive Mount Stale)
+
+**Symptom:**
+
+```txt
+Error response from daemon: invalid mount config for type "bind": stat /run/desktop/mnt/host/h/...: no such device
+```
+
+**Cause:** Docker Desktop translates Windows drive paths (e.g., `H:`) into WSL2 mount points at `/run/desktop/mnt/host/h`. After a system sleep, restart, or Docker Desktop restart, this automount can go stale — the path exists on Windows but the WSL2 device node is broken.
+
+**Fix — Reset the WSL2 mount:**
+
+```txt
+# In PowerShell (run as Administrator)
+wsl --shutdown
+# Wait ~5 seconds, then start Docker Desktop again
+```
+
+After Docker Desktop restarts, re-run `deploy.ps1` or `docker-compose up`.
+
+**Permanent fix:** Move the project to the `C:` drive. WSL2 automounts `C:` reliably; secondary drives (e.g., `H:`) are prone to this issue.
+
 ## Security Notes
 
 ### SSL/TLS Security
