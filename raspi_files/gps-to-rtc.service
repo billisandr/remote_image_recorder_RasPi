@@ -9,7 +9,7 @@ ExecStart=/usr/local/bin/gps_to_rtc_sync.sh
 StandardOutput=journal
 StandardError=journal
 RemainAfterExit=yes
-# MAX_WAIT (600) + a little cushion
+# MAX_WAIT (600s, see gps_to_rtc_sync.sh) + a little cushion
 TimeoutStartSec=700
 
 [Install]

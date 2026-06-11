@@ -2,7 +2,7 @@
 set -euo pipefail
 
 LOG="/var/log/gps_rtc_sync.log"
-MAX_WAIT=1200
+MAX_WAIT=600
 INTERVAL=10
 GPS_TIMEOUT_REACHED=1
 
@@ -19,7 +19,7 @@ GPS_TIME=""
 
 while [ "$SECONDS_WAITED" -lt "$MAX_WAIT" ]; do
     # Run a Python one-liner to extract time from GPSD
-    GPS_TIME=$(python3 -c '
+    GPS_TIME=$(timeout 15 python3 -c '
 import sys
 import gps
 import time

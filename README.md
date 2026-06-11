@@ -294,7 +294,8 @@ sudo systemctl restart gps-to-rtc.service
 sudo systemctl list-timers --all | grep gps-to-rtc
 
 # Check service logs for errors
-sudo journalctl -u gps-to-rtc.service -n 50
+sudo journalctl -u gps-to-rtc.service -n 50 --no-pager
+sudo journalctl -u gps-to-rtc.service -f #real-time tailing
 cat /var/log/gps_rtc_sync.log
 ```
 
@@ -346,6 +347,33 @@ After Docker Desktop restarts, re-run `deploy.ps1` or `docker-compose up`.
 - Use external secrets management (e.g., Docker Swarm secrets, Kubernetes secrets)
 - Enable container resource limits and monitoring
 - Implement proper log management and rotation
+
+## Deployment Checklist
+
+### Server (Windows host)
+
+- [ ] Docker Desktop is running (restart it / `wsl --shutdown` if mounts fail — see [Troubleshooting](#docker-secrets-mount-failure-wsl2-drive-mount-stale))
+- [ ] SSL certificate generated with the correct SAN for the server's LAN IP (`bash gen_certs.sh`)
+- [ ] `./deploy.ps1` run successfully and prints `Docker container 'tide-recorder-server-https' started at https://<SERVER_IP>:5000`
+- [ ] `docker ps` shows the container as `healthy`
+- [ ] Web interface reachable at `https://<SERVER_IP>:5000` and login page loads
+- [ ] Admin credentials retrieved from `docker/secrets/admin_user.txt` and `admin_pass.txt`
+- [ ] Note the server's LAN IP (`ipconfig`, Ethernet/Wi-Fi adapter — not `172.x.x.x`) for the Pi `.env`
+
+### Raspberry Pi Client
+
+- [ ] Camera connected and enabled (`rpicam-still` or `fswebcam` working)
+- [ ] RTC module wired and detected (`hwclock --show` returns a valid time)
+- [ ] GPS module wired to `/dev/serial0` (TX→RXD pin 10, RX→TXD pin 8, VCC, GND)
+- [ ] Pi UART configured for the GPS module (serial console disabled, `dtoverlay=disable-bt` if needed)
+- [ ] `gpsd` running and producing `TPV` fixes (`gpspipe -w -n 5` shows position data)
+- [ ] `raspi_files/` copied to required locations (see [Required File Locations](#required-file-locations))
+- [ ] `gps_to_rtc_sync.sh` is executable (`sudo chmod +x`)
+- [ ] `gps-to-rtc.timer` enabled and active (`sudo systemctl status gps-to-rtc.timer`)
+- [ ] First sync completed successfully (`cat /var/log/gps_rtc_sync.log` shows "RTC updated from GPS time")
+- [ ] `/usr/local/bin/.env` created with `FLASH_GPIO`, `PHOTO_INTERVAL`, and `SERVER_URL` matching the server's LAN IP
+- [ ] `cert.pem` from the server copied to the Pi (if required by `photo_logger.py` for SSL verification)
+- [ ] `photo_logger.py` runs and successfully uploads a test image (visible in server `/gallery`)
 
 ## License
 This project is licensed under the BSD 3-Clause License. See [LICENSE](LICENSE) file for details. 
